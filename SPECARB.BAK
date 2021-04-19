@@ -1,0 +1,1202 @@
+program specialarbete;
+{$M 10000, 0, 655360}
+   uses crt,graph,bmpunit,mus;
+   const deg=pi/180;
+         rumnum=13;
+         rum:array[1..rumnum,2..9] of byte=
+         ((2,3,4,5,0,0,0,0),
+          (1,8,0,0,0,0,0,0),
+          (1,0,0,0,0,0,0,0),
+          (1,0,0,0,0,0,0,0),
+          (1,6,7,12,0,0,0,0),
+          (5,0,0,0,0,0,0,0),
+          (5,0,0,0,0,0,0,0),
+          (2,9,10,0,0,0,0,0),
+          (8,0,0,0,0,0,0,0),
+          (8,0,0,0,0,0,0,0),
+          (0,0,0,0,0,0,0,0),
+          (13,6,5,0,0,0,0,0),
+          (0,0,0,0,0,0,0,0));
+
+      rumx:array[1..rumnum,2..9] of integer=
+      ((3,160,100,317,0,0,0,0),
+       (317,3,0,0,0,0,0,0),
+       (160,0,0,0,0,0,0,0),
+       (285,0,0,0,0,0,0,0),
+       (3,160,100,160,0,0,0,0),
+       (170,0,0,0,0,0,0,0),
+       (230,0,0,0,0,0,0,0),
+       (315,140,5,0,0,0,0,0),
+       (150,0,0,0,0,0,0,0),
+       (314,0,0,0,0,0,0,0),
+       (0,0,0,0,0,0,0,0),
+       (0,120,57,0,0,0,0,0),
+       (0,0,0,0,0,0,0,0));
+
+      rumy:array[1..rumnum,2..9] of integer=
+      ((0,107,100,0,0,0,0,0),
+       (0,0,0,0,0,0,0,0),
+       (105,0,0,0,0,0,0,0),
+       (100,0,0,0,0,0,0,0),
+       (0,100,90,117,0,0,0,0),
+       (80,0,0,0,0,0,0,0),
+       (90,0,0,0,0,0,0,0),
+       (0,100,0,0,0,0,0,0),
+       (110,0,0,0,0,0,0,0),
+       (110,0,0,0,0,0,0,0),
+       (0,0,0,0,0,0,0,0),
+       (0,90,100,0,0,0,0,0),
+       (0,0,0,0,0,0,0,0));
+
+      titta:array[1..rumnum] of string=
+('Du st†r utanf”r ett fint hotell|p† en av stadens finare gator.|En stor och vacker park breder|ut sig'+
+       ' bredvid hotellet.|Tre bilar st†r parkerade p† gatan.|En tidning Ligger p† trotoaren.',
+       'Du st†r utanf”r ett stort gammalt hus.',
+       'Du „r i lobbyn p† hotellet.|Bakom disken st†r en mycket|gammal man. P† ena v„ggen|h„nger en ful tavla. '+
+       'Du ser|ocks† tre bord utan stolar.',
+       'Du „r i parken...',
+       'Du „r p† gatans slut vid en liten|restaurang med uteservering och|allt.',
+       'Du ser en gigantisk vakt som|skymmer d”rren till baren.|Honom vill du nog inte|br†ka med...',
+       'Du „r i den ryske fiskaren Alexandrij|Kroznyjs fiskemagasin. Det luktar|gammal fisk fr†n fisken„tet som|'+
+        'h„nger p† torkning i taket.',
+       'Du har hamnat utanf”r en|aff„r som heter Bosses|livs. Du ser „ven en|bankomat och ett fint|„ppeltr„d.',
+       'Du „r i en liten aff„r|d„r dom s„ljer det mesta.|Det sitter en anslagstavla|p† v„ggen.',
+       'Du „r utanf”r ett litet|hus d„r en f”nsterruta|har krossats.|En ”verfull soptunna st†r vid|gatans slut.',
+       'Du „r i ett v„ldigt litet hus|med pyttesm† m”bler.|En liten gumma st†r och grejar|med n†got mitt p† golvet.',
+       'Du har kommit in i baren. Det sitter|en tuff kille vid det enda bordet|och dricker ”l. Bartendern ser|'+
+        'dock trevlig ut.',
+       'Du har hamnat i ett underjordiskt rum|Du har ingen chans att ta dig|upp till den st„ngda luckan igen.|'+
+        'I slutet av g†ngen rinner en gr”n,|illaluktande s”rja. En repstege leder|upp till ett brunsslock med '+
+        'ett stort|h„ngl†s.');
+
+       hjalptext='Hj„lp|'+
+                      'Piltangenter: Navigera|'+
+                      '  T: Se dig omkring|'+
+                      '  I: Inventarier|'+
+                      '  C: R„kna pengar|'+
+                      ' F1: Denna meny|'+
+                      ' F2: Spara spel|'+
+                      ' F3: H„mta spel|'+
+                      ' F4: B”rja om|'+
+                      ' F5: Anv„nd mobiltelefon|'+
+                      'ESC: Avsluta';
+
+
+       events:array[1..rumnum,1..5] of string=(
+       ('','L„s tidningen','','',''),
+       ('Knacka p† d”rren','','','',''),
+       ('Tala med receptionisten','','','',''),
+       ('Titta i vattnet','','','',''),
+       ('L„s p† skylten','Rota i soptunnan','Kapa sn”ret och f†nga hamstern','',''),
+       ('Tala med d”rrvakten','','','',''),
+       ('Tala med fiskargubben','','','',''),
+       ('Ta ett „pple','Ta ut pengar','','',''),
+       ('Titta p† anslagstavlan','Tala med expediten','Kolla vad som finns i hyllan','',''),
+       ('Kl„ttra in genom f”nstret','Tala med f†geln','Rota i soptunnan','Ta en glassk„rva',''),
+       ('™ppna byr†l†da','Kl„ttra ut','Tala med gumman','',''),
+       ('Tala med bartendern','Tala med den tuffa killen','','',''),
+       ('Kl„ttra upp','','','',''));
+
+       inventarier:array[1..17] of string =(
+       'VISA-kort',
+       'Kundkorg med hamstermat i',
+       'Paket med pl†ster',
+       'Silverklocka',
+       'Alvedon brustabletter',
+       'Mobiltelefon [F5]',
+       'Flaska med vatten',
+       'Nyckel',
+       'Havfull vattenflaska',
+       'Vass glassk„rva',
+       'Pengar [C]',
+       'Medlemskort',
+       'Hamstermat',
+       '50 ryska rubel',
+       'H†v',
+       'Hamster',
+       'P„lsm”ssa');
+       vanster=-1;
+       hoger=1;
+       upp=2;
+       ner=3;
+
+      {$i kropp}
+
+      type
+     fbdatatyp=object
+     djup:integer;
+end;
+var v,x,y,skuld,visakort,cash,dir:integer;
+    invent:array[1..25] of boolean;
+    fb:array[0..16] of fbdatatyp;
+
+    bgxcol,dettarum,key:byte;
+    visagubbe:boolean;
+
+function int2str(x:longint):string;
+var s:string;
+begin
+   str(x,s);
+   int2str:=s;
+end;
+
+procedure grafik(g1,g2:integer);
+var errcode:integer;
+begin
+   initgraph(g1,g2,'bgi');
+   ErrCode := GraphResult;
+   if ErrCode <> grOk then begin
+      writeln('Ditt grafikkort funkar inte');
+      halt(0);
+   end;
+end;
+
+procedure intro;
+var key:char;
+i:byte;
+begin
+   setrgbpalette(15,0,0,0);
+   loadbg(27);
+   delay(1000);
+   for i:=1 to 63 do
+   begin
+       setrgbpalette(15,0,i,i);
+       delay(10);
+   end;
+   delay(1000);
+   for i:=63 downto 0 do
+   begin
+        setrgbpalette(15,0,i,i);
+        delay(10);
+   end;
+   cleardevice;
+   delay(1000);
+   loadbg(28);
+   for i:=1 to 63 do
+   begin
+        setrgbpalette(15,0,i,i);
+        delay(10);
+   end;
+   delay(1000);
+   for i:=63 downto 0 do
+   begin
+   setrgbpalette(15,0,i,i);
+   delay(10);
+   end;
+
+   cleardevice;
+   setcolor(15);
+   rectangle(11,1,309,161);
+   rectangle(13,3,307,159);
+   settextstyle(1,0,5);
+   outtextxy(15,5,'En morgon n„r borgm„staren vaknade');
+   outtextxy(15,15,'uppt„ckte han att hans livskamrat,');
+   outtextxy(15,25,'hamstern Roffe, var f”rsvunnen. Det');
+   outtextxy(15,35,'enda han s†g var n†gra smutsiga');
+   outtextxy(15,45,'fotsteg som ledde fr†n och till');
+   outtextxy(15,55,'f”nstret. Borgm„staren drog');
+   outtextxy(15,65,'slutsatsen att n†gon hade varit d„r');
+   outtextxy(15,75,'och stulit Roffe fr†n honom. Han');
+   outtextxy(15,85,'kastade sig p† telefonen och ringde');
+   outtextxy(15,95,'dig.');
+   outtextxy(15,105,'Varf”r han ringde just dig vet du');
+   outtextxy(15,115,'inte, men du antog uppdraget att');
+   outtextxy(15,125,'f”rs”ka hitta hans hamster...');
+   outtextxy(15,150,'Tryck [space] f”r att starta jakten');
+   for i:=1 to 63 do begin
+   setrgbpalette(15,i,i,i);
+   delay(10);
+   end;
+   repeat
+      key:=readkey;
+   until key=' ';
+   for i:=63 downto 0 do begin
+   setrgbpalette(15,i,i,i);
+   delay(10);
+   end;
+   cleardevice;
+   setrgbpalette(15,63,63,63);
+end;
+procedure sudda(x,y,xsize,ysize:integer);
+var a,b:integer;
+begin
+   for b:=y to y+ysize do
+   for a:=x to x+xsize do if ((a<320) and (a>=0)) and ((b<150) and (b>=0)) then putpixel(a,b,bg^[a,b]);
+end;
+
+procedure eventtext(txt:string);
+begin
+   setfillstyle(1,0);
+   bar(0,150,320,159);
+   setcolor(10);
+   outtextxy(1,151,txt);
+   setcolor(1);
+   line(0,160,320,160);
+end;
+
+procedure ritaben(x,y,yy:integer;typ:byte);
+var benfel:integer;
+a,b:integer;
+bgpixel:byte;
+begin
+   if typ=0 then begin
+      if dir=-1 then benfel:=2 else benfel:=0;
+      for b:=0 to 4 do
+      for a:=0 to 4 do
+      begin
+         bgpixel:=bgy^[x+dir*(b+1)+benfel,y+a+3];
+      if (yy+7>fb[bgpixel-1].djup) then if ben[a,b]<>0 then begin putpixel(x+dir*(b+1)+benfel,y+a+3,ben[a,b]);end;
+   end;
+end;
+
+if typ=1 then begin
+   for b:=0 to 2 do
+   for a:=0 to 4 do
+   begin
+      bgpixel:=bgy^[x+(b+1),y+a+3];
+   if (yy+7>fb[bgpixel-1].djup) then if ben[a,b]<>0 then begin putpixel(x+(b+1),y+a+3,ben[a,b]);end;
+end;
+end;
+
+end;
+procedure ritakropp(x,y:integer;typ:byte);
+var a,b:integer;
+    bgpixel:byte;
+begin
+   if typ=0 then begin
+      for b:=0 to 10 do
+      for a:=0 to 10 do
+      begin
+         bgpixel:=bgy^[x+dir*(b-4),y+a-7];
+      if (y+7>fb[bgpixel-1].djup) then if kropp[a,b]<>0 then begin putpixel(x+dir*(b-4),y+a-7,kropp[a,b]);end;
+   end;
+end;
+if typ=1 then begin
+   for b:=0 to 10 do
+   for a:=0 to 10 do
+   begin
+      bgpixel:=bgy^[x+(b-4),y+a-7];
+   if (y+7>fb[bgpixel-1].djup) then if kroppfb[a,b]<>0 then begin putpixel(x+(b-4),y+a-7,kroppfb[a,b]);end;
+end;
+end;
+
+end;
+procedure ritahuvud(x,y,yy:integer;typ:byte);
+var i,a,b:integer;
+    bgpixel:byte;
+begin
+   if typ=0 then begin
+      for b:=0 to 5 do
+      for a:=0 to 5 do
+      begin
+         bgpixel:=bgy^[x+dir*(b-1),y+a-10];
+      if (yy+7>fb[bgpixel-1].djup) then if huvud[a,b]<>0 then begin putpixel(x+dir*(b-1),y+a-10,huvud[a,b]);end;
+   end;
+end;
+if typ=1 then begin
+   for b:=0 to 5 do
+   for a:=0 to 5 do
+   begin
+      bgpixel:=bgy^[x+(b-1),y+a-10];
+      if (yy+7>fb[bgpixel-1].djup) then if huvudfb[a,b]<>0 then begin
+         if dir=ner then putpixel(x+(b-1),y+a-10,huvudfb[a,b]);
+         if dir=upp then if (huvudfb[a,b]=4) or (huvudfb[a,b]=3) then putpixel(x+(b-1),y+a-10,42)else
+                         putpixel(x+(b-1),y+a-10,huvudfb[a,b]);
+      end;
+   end;
+end;
+
+end;
+procedure ritaarmar(x,y,yy:integer;typ:byte);
+var a,b:integer;
+    bgpixel:byte;
+begin
+   for b:=0 to 1 do
+   for a:=0 to 5 do begin
+      if typ=0 then begin
+         bgpixel:=bgy^[x+dir*b,y+a-3];
+      if (yy+7>fb[bgpixel-1].djup) then if arm[a,b]<>0 then begin putpixel(x+dir*b,y+a-3,arm[a,b]);end;
+   end;
+
+if typ=1 then begin
+   bgpixel:=bgy^[x+b,y+a-3];
+if (yy+7>fb[bgpixel-1].djup) then if (arm[a,b]<>0) and (b<>1) then  putpixel(x+b,y+a-3,arm[a,b]);
+end;
+
+end;
+end;
+function upphojt(x,y:integer):integer;
+var i:integer;
+begin
+   for i:=1 to y-1 do x:=x*x;
+   if y=0 then upphojt:=1 else upphojt:=x;
+end;
+
+procedure laddabg(nr:integer);
+var a,b,i:integer;
+begin
+   if nr=8 then setrgbpalette(13,63,63,0);
+   loadbg(nr);
+   for a:=0 to 16 do fb[a].djup:=0;
+   for a:=0 to 48 do fb[a div 3].djup:=fb[a div 3].djup+  upphojt(10,2-(a mod 3)) *bgy^[a,0];
+
+dettarum:=nr;
+eventtext(':)');
+end;
+
+procedure ritagubbe;
+var i,dr,bg,justering:integer;
+begin
+   if dir= upp then justering:=-2 else justering:=0;
+   if dir<2 then begin
+      ritaben(x+round(3*cos((v+180)*deg))-1,y+round(1*sin((v+180)*deg))-1,y,0);
+      ritakropp(x,y,0);
+      ritaben(x+round(3*cos(v*deg))-1,y+round(1*sin(v*deg))-1,y,0);
+      ritahuvud(x,y+round(1*sin(2*v*deg))-2,y,0);
+      ritaarmar(x,y+round(1*sin(2*v*deg))-2,y,0);
+   end;
+   if dir>1 then begin
+      ritaben(x-3+justering,y+round(1*sin((v+180)*deg))-1,y,1);
+      ritaben(x+1+justering,y+round(1*sin(v*deg))-1,y,1);
+      if dir=upp then begin
+         ritaarmar(x-3+justering,y-2,y,1);
+         ritaarmar(x+5+justering,y-2,y,1);
+      end;
+      ritakropp(x+justering,y,1);
+      if dir=ner then begin
+         ritaarmar(x-3+justering,y-2,y,1);
+         ritaarmar(x+5+justering,y-2,y,1);
+      end;
+      ritahuvud(x+justering,y-2,y,1);
+   end;
+   if (bgx^[x,y+7]>1) and (bgx^[x,y+7]<10) then
+   begin
+      bg:=bgx^[x,y+7];
+      dr:=dettarum;
+      laddabg(rum[dr, bg]);
+      if rumx[dr,bg]>0 then x:=rumx[dr,bg];
+      if rumy[dr,bg]>0 then y:=rumy[dr,bg];
+      ritagubbe;
+   end;
+end;
+procedure textruta(x1,y1:integer;text:string;keyout:byte);
+var stbredd,textbredd,xsize,ysize,yy,xx,a,b,i:integer;
+    key,nedhopp:byte;
+
+begin
+   nedhopp:=0;
+   stbredd:=0;
+   textbredd:=0;
+   settextstyle(0,0,0);
+   for i:=1 to length(text) do begin
+      if textbredd>stbredd then stbredd:=textbredd;
+      if text[i]='|' then begin inc(nedhopp);textbredd:=1; end else inc(textbredd);
+   end;
+   xsize:=stbredd*8+4;
+   ysize:=10*(nedhopp+1)+3;
+   if x1=0 then x1:=160-xsize div 2;
+   if y1=0 then y1:=75-ysize div 2;
+   for b:=y1+11 to y1+ysize do
+   for a:=x1 to x1+xsize do begin
+      putpixel(a,b,getpixel(a,b)+200);
+   end;
+   setfillstyle(1,14);
+   bar(x1,y1,x1+xsize,y1+11);
+   setcolor(25);
+   rectangle(x1,y1,x1+xsize,y1+ysize);
+   line(x1,y1+11,x1+xsize,y1+11);
+   settextjustify(0,2);
+   setcolor(0);
+   yy:=0;
+   xx:=0;
+   for i:=1 to length(text) do begin
+      inc(xx);
+
+if text[i]<>'|' then outtextxy(x1+8*xx-4,y1+yy+3,text[i]) else begin inc(yy,10);xx:=0;setcolor(15);end;
+end;
+if keyout>1 then begin
+   repeat
+      key:=ord(readkey);
+   until key=keyout;
+end;
+if keyout=1 then begin
+   repeat
+      key:=ord(readkey);
+   until (upcase(chr(key))='J') or (upcase(chr(key))='N');
+end;
+
+if keyout<>0 then begin sudda(x1,y1,xsize,ysize);
+if visagubbe then ritagubbe;end;
+end;
+procedure gameover;
+var key:char;
+begin
+   delay(2000);
+   textruta(0,0,'GAME OVER|F”rs”k l”sa problemet|p† ett annat s„tt|n„sta g†ng...',32);
+   cleardevice;
+   delay(1000);
+   setcolor(15);
+   setrgbpalette(15,0,0,0);
+   rectangle(11,71,309,106);
+   rectangle(13,73,307,104);
+   outtextxy(15,75,'Du har misslyckats att hj„lpa');
+   outtextxy(15,85,'borgm„staren med att hitta hans');
+   outtextxy(15,95,'hamster. Du borde sk„mmas!');
+   for i:=1 to 63 do begin
+       setrgbpalette(15,i,i,i);
+       delay(10);
+   end;
+   repeat
+      key:=readkey;
+   until key=' ';
+   for i:=63 downto 0 do begin
+       setrgbpalette(15,i,i,i);
+       delay(10);
+   end;
+   cleardevice;
+   closegraph;
+   halt(0)
+end;
+procedure vinst;
+var key:char;
+i:byte;
+begin
+        textruta(0,0,'Du s„ger|Ja, det har jag gjort.',32);
+        textruta(0,0,'Info|Borgm„staren sl„pper in dig...',32);
+        loadbg(25);
+        eventtext('Du> Jag har din hamster!');
+        readkey;
+        eventtext('Han> Du „r min hj„lte!');
+        readkey;
+        eventtext('Du> Tja, jag vet inte jag...');
+        readkey;
+        eventtext('Han> H„r „r bel”ningen p† 5,000,000 kr');
+        readkey;
+   cleardevice;
+   setcolor(15);
+   setrgbpalette(15,0,0,0);
+   rectangle(11,1,309,82);
+   rectangle(13,3,307,80);
+   outtextxy(15,5,'Nu har du fullt upp med att spendera');
+   outtextxy(15,15,'dina 5,000,000 kronor. Du reser till');
+   outtextxy(15,25,'en varm och solig strand och s„tter');
+   outtextxy(15,35,'spr„tt p† vartenda ”re tillsammans');
+   outtextxy(15,45,'med borgm„starens vackra dotter...');
+   outtextxy(15,70,'Tryck [space] f”r att forts„tta');
+   loadbg(29);
+   for i:=1 to 63 do begin
+       setrgbpalette(15,i,i,i);
+       delay(10);
+   end;
+   repeat
+      key:=readkey;
+   until key=' ';
+   for i:=63 downto 0 do begin
+      setrgbpalette(15,i,i,i);
+      delay(10);
+   end;
+   cleardevice;
+   settextjustify(1,1);
+   setcolor(10);
+   outtextxy(160,100,'Tack f”r att du spelade klart spelet');
+   readkey;
+   cleardevice;
+   delay(1000);
+   outtextxy(160,100,'Hej d†!');
+   readkey;
+   closegraph;
+   clrscr;
+   writeln('l-a-r-s@swipnet.se');
+   halt(0);
+end;
+procedure musen;
+begin
+   if mouse.move then begin
+      if not mouse.visibility then mouse.show;
+      if bgx^[mouse.x div 2,mouse.y]>9 then eventtext(events[dettarum,bgx^[mouse.x div 2,mouse.y]-9]);
+      if bgx^[mouse.x div 2,mouse.y]<10 then eventtext(':)');
+   end;
+   if mouse.leftClick then begin
+      if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+      (dettarum=2) then begin
+         if mouse.visibility then mouse.hide;
+         textruta(0,0,'Info|Knack, knack',32);
+         textruta(0,0,'En r”st s„ger|Har du hittat min hamster?',32);
+         if invent[16] then begin
+            vinst;
+            end else begin
+               textruta(0,0,'Du s„ger|Nej, men jag ska forts„tta leta...',32);
+               textruta(0,0,'R”sten s„ger|Kom inte tillbaka f”rr„n du|har hittat min s”ta hamster.',32);
+            end;
+            if not mouse.visibility then mouse.show;
+         end;
+
+      if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+      (dettarum=3) then begin
+         if mouse.visibility then mouse.hide;
+         if not invent[12] then begin
+            textruta(0,0,'Du s„ger|Hej. Jag skulle vilja ha ett|rum med fin utsikt.',32);
+            textruta(0,0,'Receptionisten s„ger|Det blir 750 kronor.',32);
+            if cash>=750 then begin textruta(0,0,'Du s„ger|Vars†god. Ge mig nyckeln nu.',32);
+            dec(cash,750);
+            textruta(0,0,'Receptionisten s„ger|Nyckeln sitter i d”rren till|rummet. H„r f†r du ditt medlemskort|'+
+                         'som ger dig tilltr„de till baren.',32);
+            invent[12]:=true;
+            end else begin
+               textruta(0,0,'Du s„ger|Tyv„rr s† har jag inte tillr„ckligt|med kontanter...',32);
+               textruta(0,0,'Receptionisten s„ger|Du „r v„lkommen tillbaka n„r du|har r†d att bo p† v†rt fina|hotell.',32)
+            end;
+            end else textruta(0,0,'Info|Receptionisten ignorerar dig.',32);
+            if not mouse.visibility then     mouse.show;
+         end;
+
+
+   if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+   (dettarum=4) then begin
+      if mouse.visibility then mouse.hide;
+      if (not invent[7]) and (not invent[9]) then textruta(0,0,'Du tittar i det grumliga vattnet|Du hittar en flaska full'+
+      'med|vatten och sj”gr„s.',32)
+      else textruta(0,0,'Du tittar i det grumliga vattnet|Du ser en liten m”rt, men du|hinner inte f†nga den.',32);
+      invent[7]:=true;
+      if not mouse.visibility then mouse.show;
+   end;
+
+if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+(dettarum=7) then begin
+   if mouse.visibility then mouse.hide;
+   if (not invent[15]) then begin
+      textruta(0,0,'Du s„ger|Urs„kta mig. Har du sett en hamster|h„r i n„rheten?',32);
+      textruta(0,0,'Fiskarn s„ger p† knagglig svenska|Nej, men om du har 50 ryska rubel s†|kan du f† k”pa en h†v av mig.|'+
+                   'Det kan ju vara bra att ha om|du ska p† hamskerjakt.',32);
+      if invent[14] then begin
+         textruta(0,0,'Du s„ger|Hmm, jag har bara 45 rubel...',32);
+         if invent[4] then begin textruta(0,0,'Fiskarn s„ger|Det „r en v„lding fin klocka du har...',32);
+         textruta(0,0,'Du s„ger|Vars†god, du f†r den av mig',32);
+         textruta(0,0,'Info|Du k”per fiskargubbens h†v f”r|45 rubel och en silverklocka.|P† k”pet f†r du en fin|p„lsm”ssa.'
+         ,32);
+         invent[4]:=false;
+         invent[14]:=false;
+         invent[15]:=true;
+         invent[17]:=true;
+         end else textruta(0,0,'Fiskarn s„ger|Det r„cker tyv„rr inte.',32);
+         end else begin
+            textruta(0,0,'Du s„ger|Nej, det har jag tyv„rr inte.',32);
+            textruta(0,0,'Fiskarn s„ger|D† kan jag inte hj„lpa dig.',32);
+         end;
+      end
+      else textruta(0,0,'Info|Du vill inte st”ra honom mer.',32);
+      invent[7]:=true;
+      if not mouse.visibility then mouse.show;
+   end;
+   if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<30) and (abs(mouse.y-y)<20) and
+   (dettarum=12) then begin
+      if mouse.visibility then mouse.hide;
+      textruta(0,0,'Bartendern s„ger|V„lkommen till min bar. Vill du ha|n†got att dricka?',32);
+      textruta(0,0,'Du s„ger|Nej tack. Jag letar efter en hamster.|Har du sett n†n?',32);
+      textruta(0,0,'Bartendern s„ger|™hm... Nej, jag vet inget|om n†n hamster...',32);
+      if not mouse.visibility then mouse.show;
+   end;
+   if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<30) and (abs(mouse.y-y)<20) and
+      (dettarum=12) then begin
+      if mouse.visibility then mouse.hide;
+      if not invent[14] then begin
+         textruta(0,0,'Du s„ger|Tjenare. Har du sett en vilsen|hamster i krokarna?',32);
+         textruta(0,0,'Killen s„ger|Nej, men har du sett min mobiltelefon?',32);
+         if invent[6] then begin
+            textruta(0,0,'Du s„ger|r det den h„r?',32);
+            textruta(0,0,'Info|Du r„cker fram mobiltelefonen|du hittade i soptunnan.',32);
+            textruta(0,0,'Killen s„ger|Tack s† j„ttemycket. Ska du ha|hittel”n ocks†?',32);
+            textruta(0,0,'Du s„ger|Ehmm.. Ja tack...',32);
+            textruta(0,0,'Killen s„ger|Hmm.. H„r f†r du 45 ryska rubel,|det „r allt jag har.|F”rresten... Jag tror jag s†g|'+
+                         'en hamster p† uteserveringen.',32);
+            invent[6]:=false;
+            invent[14]:=true;
+            end else begin
+               textruta(0,0,'Du s„ger|Nej, tyv„rr...',32);
+               textruta(0,0,'Killen s„ger|L„mna mig i fred d†.',32);
+            end;
+            end else begin
+               textruta(0,0,'Du s„ger|Snygg frisyr du har.',32);
+               textruta(0,0,'Killen s„ger|Jag tar g„rna komplimanger,|men helst inte fr†n dig.',32);
+            end;
+            if not mouse.visibility then  mouse.show;
+         end;
+
+      if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+         (dettarum=1) then begin
+         if mouse.visibility then mouse.hide;
+         loadbg(20);
+         repeat until keypressed;
+         laddabg(dettarum);
+         ritagubbe;
+      end;
+      if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+         (dettarum=5) then begin
+         if mouse.visibility then mouse.hide;
+         loadbg(21);
+         repeat until keypressed;
+         laddabg(dettarum);
+         ritagubbe;
+         if not mouse.visibility then mouse.show;
+      end;
+      if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+         (dettarum=5) then begin
+         if mouse.visibility then mouse.hide;
+         if not invent[6] then textruta(0,0,'Info|Ojd†, du hittade en mobiltelefon...',32)else
+         textruta(0,0,'Info|Du hittar bara en massa skr„p',32);
+         invent[6]:=true;
+         if not mouse.visibility then mouse.show;
+      end;
+      if (bgx^[mouse.x div 2,mouse.y]=12) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+      (dettarum=5) then begin
+         if mouse.visibility then mouse.hide;
+         if not invent[16] then
+         if invent[10] then begin
+            textruta(0,0,'Info|Du sk„r av repet med din glassk„rva|Nu „r det bara till att f†nga|den vilda hamstern.',32);
+            if invent[15] then begin
+               textruta(0,0,'Info|Snabbt som attan f†ngar du den|lilla rackaren i din hov.|Du tar hamstern under armen|'+
+               'och g†r in igen.|Smart som du „r l„gger du|din p„lsm”ssa p† hamsterns|plats, s† att ingen m„rker att|'+
+               'den saknas.',32);
+               invent[16]:=true;
+               invent[10]:=false;
+               invent[17]:=false;
+               x:=160;
+               y:=115;
+               laddabg(12);
+               ritagubbe;
+               end else begin
+                  textruta(0,0,'Info|Den lilla gynnaren „r f”r snabb f”r|dig. Han springer snabbt ut p†|den trafikerade'+
+                  'v„gen d„r det|sker en hemsk olycka...',32);
+                  gameover;
+               end;
+               end else textruta(0,0,'Info|Du har inget att kapa repet med...',32) else
+               textruta(0,0,'Info|Du beh”ver inte kapa repet igen.|L†t p„lsm”ssan ligga.',32);
+               if not mouse.visibility then mouse.show;
+            end;
+
+         if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+            (dettarum=6) then begin
+            if mouse.visibility then mouse.hide;
+            textruta(0,0,'Du s„ger|Godagens, jag vill in.',32);
+            textruta(0,0,'Vakten s„ger|F†r jag se ditt medlemskort?',32);
+            if invent[12] then begin
+               textruta(0,0,'Info|Du visar stolt upp ditt medlemskort|och vakten sl„pper in dig.',32);
+               x:=200;
+               y:=95;
+               laddabg(12);
+               ritagubbe;
+               end else begin
+                  textruta(0,0,'Du s„ger|Jag har inget, men jag ska|in „nd†...',32);
+                  textruta(0,0,'Vakten s„ger|r du uppk„ftig eller?',32);
+                  textruta(0,0,'Du s„ger|Flytta p† dig, tjockis',32);
+                  textruta(0,0,'Vakten s„ger|N„ nu j„vlar',32);
+                  setrgbpalette(13,63,63,0);
+                  loadbg(23);
+                  delay(2500);
+                  visagubbe:=false;
+                  textruta(0,1,'Info|Vakten buntade ihop dig ordentligt|och h„ngde upp dig i taklampan.|Du har hamnat i ett '+
+                  'v„ldigt taskigt|l„ge...',32);
+                  delay(1000);
+                  if invent[10] then begin
+                     textruta(0,10,'Info|Du kommer p† att du har en vass|glassk„rva p† dig.|Du sk„r av sladden med den.'+
+                     'D„refter|lagar du sladden, f”r att slippa|ytterligare problem med den sura|vakten',32);
+                     laddabg(dettarum);
+                     x:=160;
+                     y:=100;
+                     ritagubbe;
+                  end
+                  else begin
+                     textruta(0,10,'Info|Synd att du inte hade n†got|vasst f”rem†l p† dig.|Du h„nger och dinglar i n†gra|'+
+                     'timmar innan det svartnar f”r|dina ”gon.',32);
+                     gameover;
+                     laddabg(dettarum);
+                  end;
+               end;
+               visagubbe:=true;
+               if not mouse.visibility then     mouse.show;
+            end;
+            if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+               (dettarum=9) then begin
+               if mouse.visibility then mouse.hide;
+               loadbg(22);
+               repeat until keypressed;
+               laddabg(dettarum);
+               ritagubbe;
+            end;
+
+         if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+         (dettarum=8) then begin
+            if mouse.visibility then mouse.hide;
+            textruta(0,0,'Info|Du „ter ett „pple...|Nu har du nya krafter!',32);
+            if not mouse.visibility then     mouse.show;
+         end;
+         if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+         (dettarum=8) then begin
+            if mouse.visibility then mouse.hide;
+            if visakort<100 then textruta(0,0,'Info|Du har under 100 kronor p† kortet',32)else
+            begin
+               textruta(0,0,'Info|Du t”mmer kontot. Det finns|ingen anledning att spara p†|pengarna...|Du har nu '
+               +int2str(cash+visakort)+' kronor i fickan.',32);
+               cash:=cash+visakort;
+               visakort:=0;
+            end;
+            if not mouse.visibility then mouse.show;
+         end;
+      
+      if (bgx^[mouse.x div 2,mouse.y]=12) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+      (dettarum=10) then begin
+         if mouse.visibility then mouse.hide;
+         if not invent[3] then textruta(0,0,'Info|Du rotar bland de stinkande soporna.|I botten av soptunnan hittar du|'+
+         +'ett paket med pl†ster, som du stoppar|i din byxficka.',32)else
+         textruta(0,0,'Info|Du hittar inget intressant.',32);
+         invent[3]:=true;
+         if not mouse.visibility then mouse.show;
+      end;
+
+   if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<50) and
+   (dettarum=10) then begin
+      if mouse.visibility then mouse.hide;
+      textruta(0,0,'Du s„ger|Godag herr Skata',32);
+      if not invent[4] then begin
+         textruta(0,0,'Skatan s„ger|Kvillevitt',32);
+         textruta(0,0,'Info|En silverklocka faller ur|n„bben p† skatan.|Du plockar upp den.',32);
+         invent[4]:=true;
+         end else textruta(0,0,'Skatan s„ger|Kviddelivitt',32);
+         if not mouse.visibility then        mouse.show;
+      end;
+   
+   if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+   (dettarum=10) then begin
+      if mouse.visibility then mouse.hide;
+      textruta(0,0,'Info|Du sk„r av puls†dern p† en|glasbit i f”nstret.|Det g”r fruktansv„rt ont och du|b”rjar bli yr i '+
+      'huvudet...',32);
+      if invent[3] then begin
+         textruta(0,0,'Info|Tur att du har n†gra pl†ster|p† dig.|Du stoppar blodfl”det och k„nner|dig genast mycket b„ttre.'
+         ,32);
+         laddabg(11);
+         x:=120;y:=87;
+         ritagubbe;
+         end else begin textruta(0,0,'Info|Sakta men s„kert flyger du|till himlen...',32);gameover;end;
+         if not mouse.visibility then     mouse.show;
+      end;
+
+   if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+   (dettarum=9) then begin
+      if mouse.visibility then mouse.hide;
+      textruta(0,0,'Expediten s„ger|Kan jag hj„lpa dig?',32);
+      if not invent[2] then begin
+         textruta(0,0,'Du s„ger|Nej tack. Jag tittar bara lite.',32);
+         end else begin
+            textruta(0,0,'Du s„ger|Jag vill betala f”r denna|p†sen med hamstermat.',32);
+            textruta(0,0,'Expediten s„ger|Det blir 97 kronor.',32);
+            if cash<97 then begin
+               textruta(0,0,'Du s„ger|Oj, jag har visst inte r†d.',32);
+               textruta(0,0,'Expediten s„ger|Fattiglapp!     ',32);
+               textruta(0,0,'Info|Du st„ller tillbaka varan|i hyllan.',32);
+               end else begin
+                  textruta(0,0,'Info|Du betalar sn„llt.',32);
+                  dec(cash,97);
+                  invent[13]:=true;
+               end;
+               invent[2]:=false;
+            end;
+            if not mouse.visibility then     mouse.show;
+         end;
+         if (bgx^[mouse.x div 2,mouse.y]=12) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+         (dettarum=9) then begin
+            if mouse.visibility then mouse.hide;
+            if (not invent[2]) and (not invent[13]) then begin
+               textruta(0,0,'Info|Hyllan „r full av mat|f”r ganagare. Du tar|en p†se med hamstermat.',32);
+               textruta(0,0,'Info|Gl”m inte att betala|f”r p†sen!',32);
+               invent[2]:=true;
+               end else textruta(0,0,'Info|Du n”jer dig med en p†se.',32);
+            
+            if not mouse.visibility then     mouse.show;
+         end;
+      
+      if (bgx^[mouse.x div 2,mouse.y]=13) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+      (dettarum=10) then begin
+         if mouse.visibility then mouse.hide;
+         if not invent[10] then textruta(0,0,'Info|Du plockar upp en vass glasskr„va|fr†n det krossade f”nstret.',32)
+         else textruta(0,0,'Info|Du har redan en glasbit',32);
+         invent[10]:=true;
+         if not mouse.visibility then     mouse.show;
+      end;
+   
+   if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+   (dettarum=11) then begin
+      if mouse.visibility then mouse.hide;
+      if not invent[5] then textruta(0,0,'Du ”ppnar byr†l†dan|Du hittar en burk med alvedon|brustabletter. '+
+      'Du tar upp dom|ur byr†l†dan.',32)
+      else textruta(0,0,'Du ”ppnar byr†l†dan|Den „r tom',32);
+      invent[5]:=true;
+      if not mouse.visibility then mouse.show;
+   end;
+   if (bgx^[mouse.x div 2,mouse.y]=11) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+   (dettarum=11) then begin
+      if mouse.visibility then mouse.hide;
+      textruta(0,0,'Info|Du kl„ttrar f”rsiktigt ut|genom f”nstret samtidigt|som du hojtar ett glatt|hej d† till gumman',32);
+      laddabg(10);
+      x:=115;y:=110;
+      ritagubbe;
+      if not mouse.visibility then mouse.show;
+   end;
+
+if (bgx^[mouse.x div 2,mouse.y]=12) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+(dettarum=11) then begin
+   if mouse.visibility then mouse.hide;
+   textruta(0,0,'Du s„ger|Godag tant. Hur st†r det till?',32);
+   textruta(0,0,'Gumman s„ger|Jag har s† fruktansv„rt ont|i skenbenet. Kan du ge mig|ett glas alvedon?',32);
+   if (not invent[5]) and (not invent[7]) then begin
+      textruta(0,0,'Du s„ger|Nej, tyv„rr',32);
+      textruta(0,0,'Gumman s„ger|Kom tillbaka n„r du har fixat|fram grejorna †t mig.',32);
+   end;
+
+if (invent[5]) and (not invent[7]) then begin
+   textruta(0,0,'Du s„ger|Jag har alvedon, men inget vatten...',32);
+   textruta(0,0,'Gumman s„ger|Kom tillbaka n„r du har skaffat|vatten †t mig.',32);
+end;
+if (invent[7]) and (not invent[5]) then begin
+   textruta(0,0,'Du s„ger|Jag har vatten, men ingen|alvedon...',32);
+   textruta(0,0,'Gumman s„ger|Kom tillbaka n„r du har hittat|alvedon †t mig.',32);
+end;
+if (invent[5]) and (invent[7]) then begin
+   textruta(0,0,'Info|Du trycker ner en brustablett|alvedon i din vattenflaska och|r„cker den till gumman.',32);
+   textruta(0,0,'Gumman s„ger|Du var mig en rask pojke.|Som tack ska du f† en nyckel|som jag hittade i g†r.',32);
+   invent[9]:=true;
+   invent[8]:=true;
+end;
+if not mouse.visibility then mouse.show;
+end;
+
+if (bgx^[mouse.x div 2,mouse.y]=10) and (abs(x-mouse.x div 2)<20) and (abs(mouse.y-y)<20) and
+(dettarum=13) then begin
+   if mouse.visibility then mouse.hide;
+   if not invent[8] then begin
+      textruta(0,0,'Info|Du kl„ttrar upp, men du f†r|inte upp l†set, s† du kl„ttrar|ner igen.',32);
+      delay(1000);
+      textruta(0,0,'Info|Nu „r det r„tt k”rt f”r|din del...',32);
+      gameover;
+      end else begin
+         textruta(0,0,'Info|Du kl„ttrar upp f”r stegen.|Du testar att ”ppna l†set med|nyckeln du fick av den|lilla gumman...'
+         ,32);
+         textruta(0,0,'Info|L†set ”ppnas och du kravlar dig upp|genom brunnen...',32);
+         laddabg(5);
+         x:=155;y:=120;
+         ritagubbe;
+      end;
+   
+   if not mouse.visibility then mouse.show;
+end;
+end;
+
+
+
+end;
+procedure inventproc;
+var i,show:integer;
+inv:string;
+begin
+   j:=1;
+      repeat
+         if j=1 then inv:='Inventarier' else inv:='Inventarier (forts)';
+         show:=0;
+         for i:=j to 17 do begin
+            if invent[i] then
+            begin
+               inc(show);
+               inv:=inv+'|'+inventarier[i];
+               if show=10 then begin
+                  j:=i+1;
+                  i:=17;
+               end;
+            end;
+         end;
+         if inv<>'Inventarier (forts)' then textruta(0,0,inv,32);
+      until show<10;
+   end;
+   procedure mobil;
+   var markor:byte;
+   key:char;
+       nummer:array[0..9] of char;
+   tfn:string;
+   begin
+      loadbg(24);
+      textruta(0,1,'Info|Sl† nummer',0);
+      markor:=0;
+      tfn:='         ';
+      for i:=0 to 9 do nummer[i]:=' ';
+      repeat
+         key:=readkey;
+         if (ord(key)=8) and (markor>0) then begin
+            dec(markor);
+            setcolor(0);
+            outtextxy(123+8*markor,58,nummer[markor]);
+         end;
+         if markor<9 then
+         case key of
+         '0'..'9':begin
+            nummer[markor]:=key;
+            setcolor(15);
+            outtextxy(123+8*markor,58,nummer[markor]);
+            inc(markor);
+         end;
+      end;
+   until (ord(key)=27) or (ord(key)=13);
+laddabg(dettarum);
+ritagubbe;
+if ord(key)=13 then begin
+   for i:=0 to 9 do tfn[i+1]:=nummer[i];
+   if (tfn='321345') or (tfn='020234543') then begin
+      if tfn='321345' then begin
+         textruta(1,1,'Borgm„staren s„ger|Har du hittat Roffe „n eller?',32);
+         textruta(100,1,'Du s„ger|Nej, men jag jobbar p† det.',32);
+      end;
+      if tfn='020234543' then begin
+         textruta(1,1,'Telefonisten s„ger|Finax telefonl†n god middag.',32);
+         textruta(90,1,'Du s„ger|Hej, jag vill l†na 5000 kronor.',32);
+         if skuld=0 then begin
+            textruta(1,1,'Telefonisten s„ger|Okej.',32);
+            textruta(0,0,'Info|Du talar om ditt kontonummer|och f†r besked om att pengarna|finns p† ditt konto.|'+
+            'Du l„gger p† luren...',32);
+            inc(skuld,5000);
+            inc(visakort,5000);
+            end else begin
+               textruta(1,1,'Telefonisten s„ger|Du m†ste betala tillbaka din|skuld p† 5000 innan du kan|l†na nya pengar. ',32);
+               textruta(0,0,'Info|Du s„ger n†gra fula ord|och l„gger p† luren.',32);
+            end;
+         end;
+         end else textruta(0,0,'Info|Numret har ingen abonent...',32);
+      end;
+   end;
+procedure startvarden;
+begin
+   invent[1]:=true;
+   for i:=2 to 17 do invent[i]:=false;
+   visakort:=800;
+   visagubbe:=true;
+   loadbg(26);
+   dir:=hoger;
+   x:=150;
+   y:=120;
+   laddabg(2);
+   mouse.range(0,0,639,149);
+
+end;
+procedure saveproc;
+var f:text;
+begin
+         assign(f,'game.sav');
+         rewrite(f);
+           writeln(f,'Varning! ndra inte inneh†llet i denna fil!');
+         for i:=1 to 17 do
+           if invent[i] then writeln(f,random(50)) else writeln(f,random(50)+50);
+           writeln(f,x);
+           writeln(f,y);
+           writeln(f,dir);
+           writeln(f,dettarum);
+           writeln(f,skuld+2356);
+           writeln(f,visakort+4323);
+           writeln(f,cash+3465);
+         close(f);
+end;
+procedure resetsavegame;
+begin
+   startvarden;
+   saveproc;
+end;
+
+   procedure save;
+   var key:char;
+   f:text;
+   begin
+      textruta(0,0,'Vill du spara?|     J/N',0);
+      repeat
+         key:=upcase(readkey);
+      until (key='J') or (key='N');
+      sudda(100,50,160,70);
+      if key='J' then saveproc;
+      ritagubbe;
+   end;
+   procedure load;
+   var key:char;
+   f:text;
+   tom:string;
+   inv:byte;
+   fusk:boolean;
+   begin
+      textruta(0,0,'Vill du h„mta sparat spel?|          J/N',0);
+      repeat
+         key:=upcase(readkey);
+      until (key='J') or (key='N');
+      if key='J' then begin
+         fusk:=false;
+         assign(f,'game.sav');
+         reset(f);
+           readln(f,tom);
+         for i:=1 to 17 do begin
+              readln(f,inv);
+              if inv < 50 then invent[i]:=true else invent[i]:=false;
+              if inv > 100 then fusk:=true;
+           end;
+           readln(f,x);
+           readln(f,y);
+           readln(f,dir);
+           readln(f,dettarum);
+           readln(f,skuld);
+           readln(f,visakort);
+           readln(f,cash);
+         close(f);
+         dec(skuld,2356);
+         dec(visakort,4323);
+         dec(cash,3465);
+
+         if (fusk) or (x>320) or (y>150) or (skuld>5800) or (skuld<0) or (visakort>5800) or (cash>5800) then begin
+            textruta(0,0,'Fusk!|Du har f”rs”kt modifiera|den sparade filen...|Fy p† dig!',32);
+            resetsavegame;
+            gameover;
+         end;
+      end;
+
+   laddabg(dettarum);
+   ritagubbe;
+end;
+procedure rumevents;
+var blink:byte;
+begin
+   if dettarum=8 then begin
+      blink:=random(1000);
+      if blink=0 then setrgbpalette(13,63,63,0);
+      if blink=1 then setrgbpalette(13,40,40,40);
+   end;
+   if (dettarum=6) and (invent[16]) then begin
+      textruta(0,0,'Info|D”rrvakten ser att du har kidnappat|hamstern. Har ger dig ett ordentligt|kok stryk och sl„nger '+
+                   'ner b†de dig|och hamstern genom luckan i golvet...',32);
+      x:=120;
+      y:=90;
+      laddabg(13);
+      ritagubbe;
+   end;
+   if (dettarum=8) and (invent[2]) then begin
+      textruta(0,0,'Info|Du gl”mde betala f”r|hamstermaten...|Polisen haffar dig!',32);
+      gameover;
+   end;
+   if (dettarum=1) and (invent[16]) and (invent[7]) then begin
+      textruta(0,0,'Info|Hamstern verkar v„ldigt utmattad.|Hans puls blir allt svagare...',32);
+      if invent[13] then begin textruta(0,0,'Info|Du stoppar in lite hamstermat|i munnen p† den lilla gynnaren|'+
+      'och ger honom den sista|slurken i vattenflaskan.|Snart m†r han mycket b„ttre.',32);
+      invent[7]:=false;
+   end
+   else begin
+      textruta(0,0,'Info|††h nej! Hamsterstackarn drar|sin sista suck i dina armar...',32);
+      gameover;
+   end;
+end;
+end;
+
+procedure startover;
+var key:char;
+begin
+   textruta(0,0,'Vill du b”rja om?|       J/N',0);
+   repeat
+      key:=upcase(readkey);
+   until (key='J') or (key='N');
+   if key='J' then startvarden else laddabg(dettarum);
+
+ritagubbe;
+end;
+procedure quit;
+var key:char;
+begin
+   textruta(0,0,'Vill du avsluta?|      J/N',0);
+   repeat
+      key:=upcase(readkey);
+   until (key='J') or (key='N');
+   if key='J' then begin
+      closegraph;
+      halt(0);
+   end;
+   laddabg(dettarum);
+   ritagubbe;
+end;
+
+procedure knapptryck;
+begin
+   if upcase(chr(key))='I' then inventproc;
+   if upcase(chr(key))='T' then textruta(0,0,'Du ser dig omkring...|'+titta[dettarum],32);
+   if upcase(chr(key))='C' then textruta(0,0,'Du r„knar dina pengar|Du har '+int2str(cash)+' kronor',32);
+   if (key=27) then quit;
+   if key=59 then textruta(0,0,hjalptext,32);
+   if (key=63) then if (invent[6]) then mobil else textruta(0,0,'Info|Du har ingen telefon...',32);
+   if (key=60) then save;
+   if (key=61) then load;
+   if (key=62) then startover;
+
+if key=72 then begin
+   dir:=upp;
+   bgxcol:=0;
+   for i:=-4 to 2 do if (bgx^[x+i,y+4]=1) then inc(bgxcol);
+   if bgxcol=0 then begin
+      sudda(x-8,y-15,16,25);
+      inc(v,70);
+      dec(y,2);
+      ritagubbe;
+   end;
+end;
+if key=80 then begin
+   dir:=ner;
+   bgxcol:=0;
+   for i:=-2 to 4 do if (bgx^[x+i,y+8]=1) then inc(bgxcol);
+   if bgxcol=0 then begin
+      sudda(x-8,y-13,16,23);
+      inc(v,70);
+      inc(y,2);
+      ritagubbe;
+   end;
+end;
+if key=75 then begin
+   dir:=vanster;
+   if (bgx^[x+5*dir,y+6]<>1) then begin
+      sudda(x-7,y-13,13,21);
+      dec(v,40);
+      dec(x,2);
+      ritagubbe;
+   end;
+end;
+if key=77 then begin
+   dir:=hoger;
+   if (bgx^[x+5*dir,y+6]<>1) then begin
+      sudda(x-6,y-13,13,21);
+      inc(v,40);
+      inc(x,2);
+      ritagubbe;
+   end;
+end;
+end;
+procedure game;
+begin
+   ritagubbe;
+   repeat
+      musen;
+      key:=0;
+      if keypressed then begin
+         key:=ord(readkey);
+         if mouse.visibility then mouse.hide;
+         knapptryck;
+      end;
+
+   rumevents;
+
+until 1=2;
+end;
+begin
+   new(bg);
+   new(bgy);
+   new(bgx);
+   i:=installuserdriver('svga256',nil);
+   grafik(i,0);
+   intro;
+   startvarden;
+   game;
+   closegraph;
+end.

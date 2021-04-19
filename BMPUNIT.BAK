@@ -1,0 +1,122 @@
+unit Bmpunit;
+interface
+uses dos,graph,crt;
+Const CXlat : Array[0..15] of Byte =
+(0,  4,  2,  6,  1,  5,  3, 7, 8,$0C,$0A,$0E,$09,$0D,$0B,$0F);
+ {translate the RGB windows - colors to CGA - color # }
+type bakgr=array[0..320,0..150] of byte;
+var
+  bg,bgx,bgy:^bakgr;
+
+  bmp_Z : Array[0..3000] of Byte;
+  x,g1,g2,I,bmp_M,j,bmp_T,y,bmp_w : Integer;
+  bmp_f : File;
+  bmp_r : Registers;
+  bmp_H : Record
+        L,b,h : Longint;   {L=28H, b=C1H, h=74H}
+        d,a   : Word;      {d=74H, a=04H}
+      End;
+ii,  SS : String; {unused}
+Procedure Loadbg(nr:byte);
+
+implementation
+Procedure Loadbg(nr:byte);
+const hx=0;
+      hy=-330;
+      namn:array[1..3] of string=('bg','bgx','bgy');
+
+var BMP_Name:string;
+    i,j,z:integer;
+function int2str(x:longint):string;
+var s:string;
+begin
+   str(x,s);
+   int2str:=s;
+end;
+
+Begin
+
+  for z:=1 to 3 do begin
+  bmp_name:='data\'+namn[z]+int2str(nr)+'.bmp';
+case nr of
+  	20 : bmp_name:='data\tidning.bmp';
+	21 : bmp_name:='data\barskylt.bmp';
+	22 : bmp_name:='data\atavla.bmp';
+	23 : bmp_name:='data\hangd.bmp';
+	24 : bmp_name:='data\mobil.bmp';
+	25 : bmp_name:='data\klar.bmp';
+	26 : bmp_name:='data\title.bmp';
+	27 : bmp_name:='data\intro1.bmp';
+	28 : bmp_name:='data\intro2.bmp';
+	29 : bmp_name:='data\end.bmp';
+end;
+  bmp_M := 479;
+  Assign(bmp_f,BMP_Name);
+  Reset(bmp_f,1);
+  BlockRead(bmp_f,bmp_Z,14); {ignore 14 header bytes}
+  BlockRead(bmp_f,bmp_H,16);;
+  BlockRead(bmp_f,bmp_Z,bmp_H.L-16); {40-16=remain 26}
+  for j := 0 to 1 shl bmp_H.A-1 do   { 1 shl 4 = 16, -> 0 to 15}
+    Begin
+      BlockRead(bmp_f,bmp_Z,4); {palette, unused}
+    End;
+  y := bmp_M;
+  bmp_w := 0;
+  while bmp_H.A*bmp_H.B > bmp_w*8 do bmp_w := bmp_w+1;  {some calculation for hor. pixels}
+  Repeat
+    BlockRead(bmp_f,bmp_Z,bmp_w);
+    For I := 0 TO bmp_w-1 do
+      case bmp_H.A of
+        4 : Begin
+{              PutPixel(I*2+hx,hy+y,CXlat[bmp_Z[I] shr 4]);
+              PutPixel(I*2+hx+1,hy+y,CXlat[bmp_Z[I] and $0F]);}
+            g1:=i*2+hx;
+            g2:=hy+y;
+
+            if nr<20 then
+            case z of
+            1:begin bg^[g1,g2]:=CXlat[bmp_Z[I] shr 4];
+                    bg^[g1+1,g2]:=CXlat[bmp_Z[I] and $0F];end;
+            2:begin bgx^[g1,g2]:=CXlat[bmp_Z[I] shr 4];
+                    bgx^[g1+1,g2]:=CXlat[bmp_Z[I] and $0F];end;
+            3:begin bgy^[g1,g2]:=CXlat[bmp_Z[I] shr 4];
+                    bgy^[g1+1,g2]:=CXlat[bmp_Z[I] and $0F];end;
+            end else begin
+                     if nr<26 then begin
+                     if CXlat[bmp_Z[I] shr 4]<>14 then PutPixel(I*2+hx,hy+y,CXlat[bmp_Z[I] shr 4]);
+                     if CXlat[bmp_Z[I] and $0F]<>14 then PutPixel(I*2+hx+1,hy+y,CXlat[bmp_Z[I] and $0F])
+                     end else begin
+                     if nr=26 then begin
+                        PutPixel(I*2+hx,hy+y+49,CXlat[bmp_Z[I] shr 4]);
+                        PutPixel(I*2+hx+1,hy+y+49,CXlat[bmp_Z[I] and $0F]);
+                     end;
+                     if nr=27 then begin
+                        PutPixel(I*2+hx+100,hy+y-30,CXlat[bmp_Z[I] shr 4]);
+                        PutPixel(I*2+hx+101,hy+y-30,CXlat[bmp_Z[I] and $0F]);
+                     end;
+                     if nr=28 then begin
+                        PutPixel(I*2+hx+90,hy+y-30,CXlat[bmp_Z[I] shr 4]);
+                        PutPixel(I*2+hx+91,hy+y-30,CXlat[bmp_Z[I] and $0F]);
+                     end;
+                     if nr=29 then begin
+                        PutPixel(I*2+hx,hy+y+49,CXlat[bmp_Z[I] shr 4]);
+                        PutPixel(I*2+hx+1,hy+y+49,CXlat[bmp_Z[I] and $0F]);
+                     end;
+
+                     end;
+                     end;
+
+            End;
+      end; {case}
+    BlockRead(bmp_f,bmp_Z,(4-bmp_w MOD 4)MOD 4);
+    y := y-1;
+  until bmp_M-y >= bmp_H.H;
+  Close(bmp_f);
+end;
+if nr<20 then
+for j:=0 to 149 do
+	for i:=0 to 320 do putpixel(i,j,bg^[i,j]);
+END;
+
+Begin
+END.
