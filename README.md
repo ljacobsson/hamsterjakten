@@ -13,4 +13,8 @@ The game and most of the code is in Swedish.
 3. In Dosbox, run `mount c: /path/to/clone`
 4. In Dosbox, run `c:` followed by `SPECARB.EXE`
 
-the character flickers quite a lot when he walks. This was not an issue 20 years ago and I guess Dosbox can be configured to improve the framerate.
+The character flickers quite a lot when he walks. This was not an issue 20 years ago and I guess Dosbox can be configured to improve the framerate.
+
+## Tech stack
+* Turbo Pascal 7
+* Ms Paint
