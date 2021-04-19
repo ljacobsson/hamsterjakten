@@ -1,5 +1,0 @@
-Hej!
-
-Om programmet inte startar beror det nog på att den letar efter graph.tpu i någon annan katalog än UNITS. 
-
-Ha det så trevligt med spelet.
